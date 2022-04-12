@@ -1,10 +1,10 @@
-package com.wayfair.wayfairassignment;
+package com.mayfair.products;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class WayfairAssignmentApplicationTests {
+class MayfairProductsApiApplication {
 
 	@Test
 	void contextLoads() {

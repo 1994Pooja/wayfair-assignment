@@ -1,0 +1,128 @@
+openapi: 3.0.1
+info:
+  title: MAYFAIR PRODUCTS API
+  description: This is Mayfair Products Management Program 
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: 1994poojaarora@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: https://dev.ccmp.swagger.io/v1
+  - url: http://prod.ccmp.swagger.io/v1
+tags:
+  - name: products
+    description: Mayfair Products Management Program Products API
+paths:
+  /products:
+    post:
+      tags:
+        - products
+      summary: Create Product
+      description: Responsible for creating a new Product.
+      operationId: createProduct
+      requestBody:
+        description: Product Request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      responses:
+        '201':
+          description: Product Successfully Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          description: Bad Product Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+    get:
+      tags:
+        - products
+      summary: Returns all products
+      description: Returns all  products for a customer
+      operationId: getProducts
+      responses:
+        '200':
+          description: Products Successfully Retrieved
+          content:
+            application/json:
+              schema:
+                 type: array
+                 items:
+                    $ref: '#/components/schemas/ProductResponse'
+               
+        '404':
+          description: Product Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+components:
+  schemas:
+    ProductRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+          format: int64
+       
+      
+    ProductResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+          format: int64
+        offers:
+          type: string
+          description: Offers Type
+          enum:
+            - Offer 1
+            - Offer 2
+            - Offer 3  
+        basketName: 
+          type: string
+        
+    
+    ErrorResponse:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          format: int32
+        description:
+          type: string

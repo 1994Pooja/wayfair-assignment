@@ -8,13 +8,20 @@
 		<version>2.6.6</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.wayfair</groupId>
-	<artifactId>wayfair-assignment</artifactId>
+	<groupId>com.mayfair</groupId>
+	<artifactId>mayfair-assignment</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>wayfair-assignment</name>
-	<description>Demo project for Spring Boot</description>
+	<name>mayfair-assignment</name>
+	<description>Product API for Mayfair</description>
 	<properties>
 		<java.version>11</java.version>
+		<openapi-location>./products-spec.yaml</openapi-location>
+		<package-id>com.mayfair.products</package-id>
+		<generated-code-location>dist/java/${lib-name}</generated-code-location>
+		<api-prefix>mayfair-products-api</api-prefix>
+		<lib-name>mayfair-products-api-spec</lib-name>
+		<snapshot>true</snapshot>
+		<tag>beta</tag>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -29,7 +36,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -42,9 +52,38 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>1.4.2.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openapitools</groupId>
+			<artifactId>jackson-databind-nullable</artifactId>
+			<version>0.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.9.2</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>1.5.6</version>
 		</dependency>
 	</dependencies>
 
@@ -62,6 +101,106 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>5.1.0</version>
+				<executions>
+					<execution>
+						<id>spring-api</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${openapi-location}</inputSpec>
+							<generatorName>spring</generatorName>
+							<apiPackage>${package-id}.generated.api</apiPackage>
+							<modelPackage>${package-id}.generated.model</modelPackage>
+							<output>${generated-code-location}</output>
+							<artifactId>${project.artifactId}</artifactId>
+							<groupId>${project.groupId}</groupId>
+							<artifactVersion>${project.version}</artifactVersion>
+							<skipIfSpecIsUnchanged>true</skipIfSpecIsUnchanged>
+							<additionalProperties>interfaceOnly=true,library=spring-boot,beanValidations=true,swaggerAnnotations=true,snapshotVersion=${snapshot}</additionalProperties>
+						</configuration>
+					</execution>
+
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+
+				<configuration>
+
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>1.4.2.Final</version>
+						</path>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>1.18.20</version>
+						</path>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok-mapstruct-binding</artifactId>
+							<version>0.2.0</version>
+						</path>
+
+
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.5</version>
+				<configuration>
+					<excludes>
+						<exclude>**/*com/mayfair/products/generated/model*/**</exclude>
+						<exclude>**/*com/mayfair/products/models*/**</exclude>
+						<exclude>**/*com/mayfair/products/mapper*/**</exclude>
+						<exclude>**/*com/mayfair/products/exception*/**</exclude>
+						<exclude>**/*com/mayfair/products/generated/api*/**</exclude>
+						<exclude>**/*com/mayfair/products/entities*/**</exclude>
+						<exclude>**/*com/mayfair/products/MayfairProductsApiApplication.class</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>default-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<dataFile>target/jacoco.exec</dataFile>
+							<outputDirectory>target/products-coverage-reports</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>3.4.0.905</version>
+			</plugin>
+
 		</plugins>
 	</build>
 
